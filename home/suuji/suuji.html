@@ -1,0 +1,313 @@
+<html>
+<head>
+	<link rel="stylesheet" href="./css/style.css">
+    <script src="./js/main.js"></script>
+	<meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+
+<script language="JavaScript">
+
+
+	hatena=new Image();
+
+
+	//ゲーム開始時のはてなマークの画像を指定
+	hatena.src="hatena.gif";
+
+	//画像の横幅を指定
+	pic_w=50;
+
+	//画像の高さを指定
+	pic_h=50;
+
+
+	//縦マスの数を指定
+	masu_h=4;
+
+	//横マスの数を指定
+	masu_w=5;
+
+	//絵が変わる早さを指定する
+	hayasa=1000;
+
+	//タイムリミット
+	//秒数で指定して下さい。1分なら60を、1分30秒なら90を指定します。
+	time_limit=30;
+
+	//初期状態のコインの枚数を指定する
+	coin=15;
+
+
+	//コインを使い果たした時のメッセージを指定する
+	mes='手持ちコインがありません...';
+
+	//メッセージ欄の背景色を指定
+	mes_bgcolor='#fbdcae';
+
+	//メッセージ欄の文字色を指定
+	mes_fontcolor='#000000';
+
+	//メッセージ欄の横幅を指定
+	mes_w=280;
+
+	//センター表示チェック。1ならセンター表示、0なら指定位置優先
+	cen_han=1;
+
+	//表示位置
+	x_iti=300;
+	y_iti=50;
+
+	//メッセージ欄が消えるまでの秒数
+	mes_time=6;
+
+
+	pic=new Array();
+	doko=0;  kekka=0;  hunn=0;  byou=0;  suuji=0; moji=''; time_win=0;
+	tokei_han=0;  kekka_reset=0; ikkaime=1;  hyouji_yobidasi=0;
+	for(i=0; i<10; i++){pic[i]=new Image();  pic[i].src=""+i+".gif";}
+
+	function my_start()
+		{
+		kekka_reset=1;  my_reset();
+		modosu_han=1;
+		layer_dotti=0;
+		moji='<br><img src="'+pic[suuji].src+'" width="'+pic_w+'" height="'+pic_w+'"><br><br>';
+		moji+='<strong><font color="'+mes_fontcolor+'">この絵を探して下さい。<\/strong><br>';
+		layer_hyouji();
+		hyouji_yobidasi=1;
+		d=0;
+		clearTimeout(d);
+		d=setTimeout('layer_kakusu()',1500);
+		}
+
+	function layer_kakusu()
+		{
+		if(document.layers)
+			document.layers["lay0"].visibility="hidden";
+		else if((document.getElementById) && (!document.all))
+			document.getElementById("lay0").style.visibility="hidden";
+		else if(document.all)
+			document.all("lay0").style.visibility="hidden";
+		if(hyouji_yobidasi == 1)
+			{
+			tokei_han=1;  tokei();
+			hyouji_han=1; hyouji();
+			hyouji_yobidasi=0;
+			}
+		return;
+		}
+
+	function my_reset()
+		{
+		if(cen_han == 1)
+			{
+			if((document.layers) || ((document.getElementById) && (!document.all)))
+				{
+				x_iti=(outerWidth-mes_w)/2;
+				}
+			else 
+				{
+				x_iti=(document.body.clientWidth-mes_w)/2;
+				}
+			}
+
+		doko=0;  ikkaime=1;  tokei_han=0;   modosu_han=0; ikkaime=1;
+		hunn=0;  byou=0;     hyouji_han=0;  tokei_han=0;
+
+		for(i = 0; i < 20; i++)document.images["pic"+i].src=hatena.src;
+		suuji=Math.floor(Math.random()*10);
+
+		kekka=coin;
+		document.form1.hunn.value=0;
+		document.form1.byou.value=0;
+		document.form1.kekka.value=kekka;
+
+		layer_kakusu();
+		return;
+		}
+
+	function tokei()
+		{
+		if(tokei_han == 1)
+			{
+			byou++;
+			if(byou == 60){ hunn++; byou=0; }
+			if(byou < 10)document.form1.hunn.value="0"+hunn;
+			else document.form1.hunn.value=hunn;
+			if(byou < 10)document.form1.byou.value="0"+byou;
+			else document.form1.byou.value=byou;
+			if(hunn*60 + byou >= time_limit){ tokei_han=0; my_last(); }
+			b=0;
+			clearTimeout(b);
+			b=setTimeout('tokei();',1000);
+			}
+		}
+
+	function hyouji()
+		{
+		if(kekka < 1)
+			{
+			hyouji_han=0; tokei_han=0; modosu_han=0;
+			layer_dotti=2;
+			moji='<strong>Game Over...<\/strong><br><br>';
+			moji+=mes+'<br><br>';
+			moji+='もう一度挑戦するには、<br>Resetボタンを押して下さい。<br><br>';
+			layer_hyouji();
+			}
+		else if(hyouji_han == 1)
+			{
+			if(ikkaime == 1)
+				{
+				for(i = 0; i < 20; i++)
+					{
+					dore=Math.floor(Math.random()*10);
+					document.images["pic"+i].src=pic[dore].src;
+					}
+				ikkaime=0;
+				}
+			else 
+				{
+				for(i = 0; i < 5; i++)
+					{
+					basyo=Math.floor(Math.random()*20);
+					dore=Math.floor(Math.random()*10);
+					if(Math.floor(Math.random()*2) == 0)dore=suuji;
+					document.images["pic"+basyo].src=pic[dore].src;
+					}
+				}
+			if(hunn == 1){ hyouji_han=0; tokei_han=0; modosu_han=0; my_last(); }
+			a=0;
+			clearTimeout(a);
+			a=setTimeout('hyouji();',hayasa);
+			}
+		}
+
+	function my_last()
+		{
+		modosu_han=0;  hyouji_han=0;  layer_dotti=1;
+		moji='おめでとうございます！<br>'+kekka+'枚コインを獲得しました。<br>';
+		layer_hyouji();
+		}
+
+	function suuji_ate(atari)
+		{
+		if(document.images["pic"+atari].src == pic[suuji].src)
+			{document.images["pic"+atari].src=pic[Math.floor(Math.random()*10)].src;  kekka++;}
+		else{kekka-=2;}
+		document.form1.kekka.value=kekka;
+		}
+
+	function layer_hyouji()
+		{
+		kazari='<table width="'+mes_w+'" bgcolor="'+mes_bgcolor+'" cellpadding="4" cellspacing="0" border="0"><tr align="center"><td>';
+		kazari+='<br><br><font color="'+mes_fontcolor+'">';
+		kazari2='<br><br><\/font><\/td><\/tr><\/table>';
+
+		document.form1.kekka.value=kekka;
+
+		if(document.layers)
+			{
+			document.layers["lay0"].moveTo(x_iti,y_iti);
+			document.layers["lay0"].document.open();
+			document.layers["lay0"].document.write(kazari+moji+kazari2);
+			document.layers["lay0"].document.close();
+			document.layers["lay0"].visibility='show';
+		}
+
+		else if((document.getElementById) && (!document.all))
+			{
+			document.getElementById("lay0").style.top=y_iti;
+			document.getElementById("lay0").innerHTML=kazari+moji+kazari2;
+			document.getElementById("lay0").style.visibility='visible';
+			}
+
+		else if(document.all)
+			{
+			document.all("lay0").style.pixelLeft=x_iti;
+			document.all("lay0").style.pixelTop=y_iti;
+			document.all("lay0").innerHTML=kazari+moji+kazari2;
+			document.all("lay0").style.visibility='visible';
+			}
+
+		clearTimeout(time_win);
+		time_win=setTimeout('layer_kakusu()',mes_time*1000);
+
+		return;
+		}
+
+	function img_load()
+		{
+		document.images["hidden"].src=hatena.src;
+		for(i = 0; i < 10; i++) {document.images["hidden"].src=pic[i].src;}
+		}
+
+//-->
+</script>
+
+</head>
+
+<body onLoad="img_load();">
+
+<div align="center">
+
+<!-- 以下変更不可 -->
+
+<span id="lay0" style="position:absolute;visibility:hidden;"></span>
+<img src="dummy.gif" name="hidden" border="0" width="1" height="1">
+
+<table cellpadding="0" border="1" cellspacing="0" align="center">
+
+	<script language="JavaScript" type="text/javascript">
+	
+
+		for(i = 0 , j = 0; i < masu_h; i++)
+			{
+			document.write('<tr>');
+			for(k = 0; k < masu_w; k++)
+				{
+				document.write('<td>');
+				document.write('<a href="javascript:suuji_ate('+j+');">');
+				document.write('<img src="'+hatena.src+'" name="pic'+j+'" alt="'+j+'" border="0" width="'+pic_w+'" height="'+pic_h+'"><br>');
+				document.write('<\/a><\/td>');
+				j++;
+				}
+			document.write('<\/tr>');
+			}
+
+	//-->
+	</script>
+
+</table>
+
+<form name="form1">
+	<tt>TIME　
+	<input type="text" name="hunn" size="2">
+	：
+	<input type="text" name="byou" size="2"><br><br>
+	手持ちコインはあと<input type="text" size="6" name="kekka">枚。<br><br>
+	<input type="button" value="START!" onClick="my_start();">
+	<input type="button" value="RESET" onClick="kekka_reset=0;my_reset();;"></tt>
+</form>
+
+<!-- 以上変更不可 -->
+
+</div>
+<!-- モーダルウィンドウ -->
+<div class="row">
+	<div class="col-sm-12">
+		<a href="#modal1" class="button">ルール説明<br>クリック</a>
+	</div>
+</div>
+
+<div id="modal1" class="overlays">
+	<a class="cancel" href="#"></a>
+	<div class="modals">
+		<h4>ルール説明</h4>
+		<div class="cont">
+			<p>①STARTボタンを押す。<br>②指示された絵をクリックしてコインを稼ぐ。<br>
+				③初期コイン枚数15枚コイン枚数が0になったらゲームオーバー。間違えたらマイナス2枚<br>・制限時間30秒</p>
+			<p class="close"><a href="#">×</a></p>
+		</div>
+	</div>
+</div>
+
+</body></html>
